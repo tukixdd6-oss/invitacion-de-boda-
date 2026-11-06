@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f4ed">
+<title>Invitación de boda — Adhemar y Rosa</title>
+<style>
+:root{--blue:#174d9a;--paper:#f7f4ed;--ink:#193e73}
+*{box-sizing:border-box}
+body{margin:0;background:#e9edf4;color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,244,237,.96);backdrop-filter:blur(8px);border-bottom:1px solid #d9dfeb;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:15px;letter-spacing:.04em}
+.controls{display:flex;align-items:center;gap:8px}
+button{border:1px solid var(--blue);background:var(--blue);color:white;border-radius:999px;padding:10px 15px;font-size:14px;cursor:pointer}
+button.secondary{background:transparent;color:var(--blue)}
+main{width:min(100%,760px);margin:22px auto;padding:0 12px 30px}
+.page{margin:0 auto 18px;background:white;box-shadow:0 8px 28px #1a315522;border-radius:4px;overflow:hidden}
+.page img{display:block;width:100%;height:auto}
+.music{margin:18px auto 24px;width:min(100%,420px);background:#fff;border:1px solid #d8dfec;border-radius:16px;padding:14px;text-align:center;box-shadow:0 6px 20px #1a315511}
+.music h2{font-size:18px;margin:0 0 8px}
+.music p{font:13px/1.45 Arial,sans-serif;color:#53647d;margin:0 0 12px}
+#player-wrap{width:100%;max-width:280px;margin:12px auto 0;aspect-ratio:16/9;background:#101010;border-radius:10px;overflow:hidden}
+#player{width:100%;height:100%}
+footer{text-align:center;font:12px Arial,sans-serif;color:#64748b;padding:4px 16px 28px}
+@media(min-width:700px){main{padding-left:20px;padding-right:20px}.page{margin-bottom:24px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Adhemar y Rosa · Invitación</div>
+  <div class="controls">
+    <button id="musicBtn" type="button" aria-label="Reproducir música">▶ Música</button>
+    <button class="secondary" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">Inicio ↑</button>
+  </div>
+</header>
+
+<main>
+  <section class="music" aria-label="Reproductor de música">
+    <h2>Nuestra canción</h2>
+    <p>Pulsa reproducir para escuchar. Puedes pausar y continuar cuando quieras.</p>
+    <div class="controls" style="justify-content:center">
+      <button id="playBtn" type="button">▶ Reproducir</button>
+      <button id="pauseBtn" class="secondary" type="button">Ⅱ Pausar</button>
+    </div>
+    <div id="player-wrap"><div id="player"></div></div>
+    <p id="status" aria-live="polite">La música está pausada.</p>
+  </section>
+
+  <section class="page"><img src="imagenes/pagina-1.png" alt="Invitación de boda de Adhemar y Rosa, 5 de diciembre"></section>
+  <section class="page"><img src="imagenes/pagina-2.png" alt="Itinerario de la boda"></section>
+  <section class="page"><img src="imagenes/pagina-3.png" alt="Código de vestimenta y pase para dos personas"></section>
+  <section class="page"><img src="imagenes/pagina-4.png" alt="Ubicación del salón y de la iglesia"></section>
+  <section class="page"><img src="imagenes/pagina-5.png" alt="Padres y padrinos"></section>
+</main>
+<footer>Con cariño, Adhemar y Rosa</footer>
+
+<script>
+const VIDEO_ID = "3ro_qlBbcpk";
+let ytPlayer = null;
+let ready = false;
+const musicBtn = document.getElementById("musicBtn");
+const statusText = document.getElementById("status");
+function setPlaying(playing){
+  musicBtn.textContent = playing ? "Ⅱ Pausar música" : "▶ Música";
+  musicBtn.setAttribute("aria-label", playing ? "Pausar música" : "Reproducir música");
+  statusText.textContent = playing ? "Reproduciendo música." : "La música está pausada.";
+}
+function playMusic(){
+  if(!ready){ statusText.textContent = "Cargando el reproductor. Vuelve a pulsar en un momento."; return; }
+  ytPlayer.playVideo();
+}
+function pauseMusic(){
+  if(ready) ytPlayer.pauseVideo();
+}
+musicBtn.addEventListener("click",()=>{
+  if(!ready) return;
+  const state = ytPlayer.getPlayerState();
+  if(state === YT.PlayerState.PLAYING) pauseMusic(); else playMusic();
+});
+document.getElementById("playBtn").addEventListener("click",playMusic);
+document.getElementById("pauseBtn").addEventListener("click",pauseMusic);
+function onYouTubeIframeAPIReady(){
+  ytPlayer = new YT.Player("player",{
+    videoId: VIDEO_ID,
+    playerVars:{playsinline:1,rel:0},
+    events:{
+      onReady:()=>{ready=true;},
+      onStateChange:(event)=>{
+        if(event.data===YT.PlayerState.PLAYING) setPlaying(true);
+        if(event.data===YT.PlayerState.PAUSED || event.data===YT.PlayerState.ENDED) setPlaying(false);
+      },
+      onError:()=>{statusText.textContent="YouTube no permitió reproducir este video aquí. Comprueba que permita la reproducción insertada."; }
+    }
+  });
+}
+const tag=document.createElement("script");
+tag.src="https://www.youtube.com/iframe_api";
+document.head.appendChild(tag);
+</script>
+</body>
+</html>
